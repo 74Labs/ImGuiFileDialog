@@ -4,6 +4,8 @@
 
 Simple file dialog for Dear ImGui. Based on [L2DFileDialog](https://github.com/Limeoats/L2DFileDialog).
 
+Added fixes for Dear ImGui version: 1.90.4-docking.
+
 ![File Dialog](/screenshots/screen1.png?raw=true)
 
 ### Usage
