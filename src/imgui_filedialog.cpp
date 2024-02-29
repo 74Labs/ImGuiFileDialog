@@ -3,14 +3,16 @@
 	Original project: https://github.com/Limeoats/L2DFileDialog
 
 	Changes by Vladimir Sigalkin
-*/
+	Original project: https://github.com/Iam1337/ImGui-FileDialog
 
-#pragma once
+	Changes by Tom Stanczyk
+*/
 
 #include <chrono>
 #include <string>
 #include <filesystem>
 #include <sstream>
+#include <cstring>
 
 #include <imgui.h>
 
@@ -27,14 +29,14 @@ enum ImGuiFileDialogSortOrder_
 	ImGuiFileDialogSortOrder_None
 };
 
-void RefreshInfo(ImFileDialogInfo* dialogInfo)
+void RefreshInfo(ImFileDialogInfo *dialogInfo)
 {
 	dialogInfo->refreshInfo = false;
 	dialogInfo->currentIndex = 0;
 	dialogInfo->currentFiles.clear();
 	dialogInfo->currentDirectories.clear();
 
-	for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(dialogInfo->directoryPath))
+	for (const std::filesystem::directory_entry &entry : std::filesystem::directory_iterator(dialogInfo->directoryPath))
 	{
 		if (entry.is_directory())
 		{
@@ -47,9 +49,10 @@ void RefreshInfo(ImFileDialogInfo* dialogInfo)
 	}
 }
 
-bool ImGui::FileDialog(bool* open, ImFileDialogInfo* dialogInfo)
+bool ImGui::FileDialog(bool *open, ImFileDialogInfo *dialogInfo)
 {
-	if (!*open) return false;
+	if (!*open)
+		return false;
 
 	static float initialSpacingColumn0 = 230.0f;
 	static float initialSpacingColumn1 = 80.0f;
@@ -74,8 +77,7 @@ bool ImGui::FileDialog(bool* open, ImFileDialogInfo* dialogInfo)
 		// Draw path
 		ImGui::Text("Path: %s", dialogInfo->directoryPath.string().c_str());
 
-
-		ImGui::BeginChild("##browser", ImVec2(ImGui::GetWindowContentRegionWidth(), 300), true, ImGuiWindowFlags_HorizontalScrollbar);
+		ImGui::BeginChild("##browser", ImVec2(ImGui::GetWindowContentRegionMax().x, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
 		ImGui::Columns(4);
 
 		// Columns size
@@ -133,80 +135,74 @@ bool ImGui::FileDialog(bool* open, ImFileDialogInfo* dialogInfo)
 		ImGui::Separator();
 
 		// Sort directories
-		auto* directories = &dialogInfo->currentDirectories;
+		auto *directories = &dialogInfo->currentDirectories;
 
 		if (fileNameSortOrder != ImGuiFileDialogSortOrder_None || sizeSortOrder != ImGuiFileDialogSortOrder_None || typeSortOrder != ImGuiFileDialogSortOrder_None)
 		{
-			std::sort(directories->begin(), directories->end(), [](const std::filesystem::directory_entry& a, const std::filesystem::directory_entry& b)
-			{
+			std::sort(directories->begin(), directories->end(), [](const std::filesystem::directory_entry &a, const std::filesystem::directory_entry &b)
+								{
 				if (fileNameSortOrder == ImGuiFileDialogSortOrder_Down)
 				{
 					return a.path().filename() > b.path().filename();
 				}
 
-				return a.path().filename() < b.path().filename();
-			});
+				return a.path().filename() < b.path().filename(); });
 		}
 		else if (dateSortOrder != ImGuiFileDialogSortOrder_None)
 		{
-			std::sort(directories->begin(), directories->end(), [](const std::filesystem::directory_entry& a, const std::filesystem::directory_entry& b)
-			{
+			std::sort(directories->begin(), directories->end(), [](const std::filesystem::directory_entry &a, const std::filesystem::directory_entry &b)
+								{
 				if (dateSortOrder == ImGuiFileDialogSortOrder_Down)
 				{
 					return a.last_write_time() > b.last_write_time();
 				}
-				return a.last_write_time() < b.last_write_time();
-			});
+				return a.last_write_time() < b.last_write_time(); });
 		}
 
 		// Sort files
-		auto* files = &dialogInfo->currentFiles;
+		auto *files = &dialogInfo->currentFiles;
 
 		if (fileNameSortOrder != ImGuiFileDialogSortOrder_None)
 		{
-			std::sort(files->begin(), files->end(), [](const std::filesystem::directory_entry& a, const std::filesystem::directory_entry& b)
-			{
+			std::sort(files->begin(), files->end(), [](const std::filesystem::directory_entry &a, const std::filesystem::directory_entry &b)
+								{
 				if (fileNameSortOrder == ImGuiFileDialogSortOrder_Down)
 				{
 					return a.path().filename() > b.path().filename();
 				}
 
-				return a.path().filename() < b.path().filename();
-			});
+				return a.path().filename() < b.path().filename(); });
 		}
 		else if (sizeSortOrder != ImGuiFileDialogSortOrder_None)
 		{
-			std::sort(files->begin(), files->end(), [](const std::filesystem::directory_entry& a, const std::filesystem::directory_entry& b)
-			{
+			std::sort(files->begin(), files->end(), [](const std::filesystem::directory_entry &a, const std::filesystem::directory_entry &b)
+								{
 				if (sizeSortOrder == ImGuiFileDialogSortOrder_Down)
 				{
 					return a.file_size() > b.file_size();
 				}
-				return a.file_size() < b.file_size();
-			});
+				return a.file_size() < b.file_size(); });
 		}
 		else if (typeSortOrder != ImGuiFileDialogSortOrder_None)
 		{
-			std::sort(files->begin(), files->end(), [](const std::filesystem::directory_entry& a, const std::filesystem::directory_entry& b)
-			{
+			std::sort(files->begin(), files->end(), [](const std::filesystem::directory_entry &a, const std::filesystem::directory_entry &b)
+								{
 				if (typeSortOrder == ImGuiFileDialogSortOrder_Down)
 				{
 					return a.path().extension() > b.path().extension();
 				}
 
-				return a.path().extension() < b.path().extension();
-			});
+				return a.path().extension() < b.path().extension(); });
 		}
 		else if (dateSortOrder != ImGuiFileDialogSortOrder_None)
 		{
-			std::sort(files->begin(), files->end(), [](const std::filesystem::directory_entry& a, const std::filesystem::directory_entry& b)
-			{
+			std::sort(files->begin(), files->end(), [](const std::filesystem::directory_entry &a, const std::filesystem::directory_entry &b)
+								{
 				if (dateSortOrder == ImGuiFileDialogSortOrder_Down)
 				{
 					return a.last_write_time() > b.last_write_time();
 				}
-				return a.last_write_time() < b.last_write_time();
-			});
+				return a.last_write_time() < b.last_write_time(); });
 		}
 
 		size_t index = 0;
@@ -214,7 +210,7 @@ bool ImGui::FileDialog(bool* open, ImFileDialogInfo* dialogInfo)
 		// Draw parent
 		if (dialogInfo->directoryPath.has_parent_path())
 		{
-			if (ImGui::Selectable("..", dialogInfo->currentIndex == index, ImGuiSelectableFlags_AllowDoubleClick, ImVec2(ImGui::GetWindowContentRegionWidth(), 0)))
+			if (ImGui::Selectable("..", dialogInfo->currentIndex == index, ImGuiSelectableFlags_AllowDoubleClick, ImVec2(ImGui::GetWindowContentRegionMax().x, 0)))
 			{
 				dialogInfo->currentIndex = index;
 
@@ -242,7 +238,7 @@ bool ImGui::FileDialog(bool* open, ImFileDialogInfo* dialogInfo)
 			auto directoryPath = directoryEntry.path();
 			auto directoryName = directoryPath.filename();
 
-			if (ImGui::Selectable(directoryName.string().c_str(), dialogInfo->currentIndex == index, ImGuiSelectableFlags_AllowDoubleClick, ImVec2(ImGui::GetWindowContentRegionWidth(), 0)))
+			if (ImGui::Selectable(directoryName.string().c_str(), dialogInfo->currentIndex == index, ImGuiSelectableFlags_AllowDoubleClick, ImVec2(ImGui::GetWindowContentRegionMax().x, 0)))
 			{
 				dialogInfo->currentIndex = index;
 
@@ -279,7 +275,7 @@ bool ImGui::FileDialog(bool* open, ImFileDialogInfo* dialogInfo)
 			auto filePath = fileEntry.path();
 			auto fileName = filePath.filename();
 
-			if (ImGui::Selectable(fileName.string().c_str(), dialogInfo->currentIndex == index, ImGuiSelectableFlags_AllowDoubleClick, ImVec2(ImGui::GetWindowContentRegionWidth(), 0)))
+			if (ImGui::Selectable(fileName.string().c_str(), dialogInfo->currentIndex == index, ImGuiSelectableFlags_AllowDoubleClick, ImVec2(ImGui::GetWindowContentRegionMax().x, 0)))
 			{
 				dialogInfo->currentIndex = index;
 				dialogInfo->fileName = fileName;
@@ -312,11 +308,12 @@ bool ImGui::FileDialog(bool* open, ImFileDialogInfo* dialogInfo)
 		std::string fileNameStr = dialogInfo->fileName.string();
 		size_t fileNameSize = fileNameStr.size();
 
-		if (fileNameSize >= fileNameBufferSize)	fileNameSize = fileNameBufferSize - 1;
+		if (fileNameSize >= fileNameBufferSize)
+			fileNameSize = fileNameBufferSize - 1;
 		std::memcpy(fileNameBuffer, fileNameStr.c_str(), fileNameSize);
 		fileNameBuffer[fileNameSize] = 0;
 
-		ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth());
+		ImGui::PushItemWidth(ImGui::GetWindowContentRegionMax().x);
 		if (ImGui::InputText("File Name", fileNameBuffer, fileNameBufferSize))
 		{
 			dialogInfo->fileName = std::string(fileNameBuffer);

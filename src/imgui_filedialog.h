@@ -3,14 +3,19 @@
 	Original project: https://github.com/Limeoats/L2DFileDialog
 
 	Changes by Vladimir Sigalkin
+	Original project: https://github.com/Iam1337/ImGui-FileDialog
+
+	Changes by Tom Stanczyk
 */
 
-#pragma once
+#ifndef IMGUI_FILEDIALOG_H
+#define IMGUI_FILEDIALOG_H
 
 #include <filesystem>
+#include <vector>
 #include <imgui.h>
 
-typedef int ImGuiFileDialogType;	// -> enum ImGuiFileDialogType_        // Enum: A file dialog type
+typedef int ImGuiFileDialogType; // -> enum ImGuiFileDialogType_        // Enum: A file dialog type
 
 enum ImGuiFileDialogType_
 {
@@ -36,5 +41,7 @@ struct ImFileDialogInfo
 
 namespace ImGui
 {
-	IMGUI_API bool FileDialog(bool* open, ImFileDialogInfo* dialogInfo);
+	IMGUI_API bool FileDialog(bool *open, ImFileDialogInfo *dialogInfo);
 }
+
+#endif
